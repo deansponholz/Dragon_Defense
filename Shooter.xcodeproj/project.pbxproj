@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B70F57F01D6DCCF90031F839 /* redDragon.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70F57EF1D6DCCF90031F839 /* redDragon.swift */; };
 		B7E2C2FF1D0CFAE200712F12 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E2C2FE1D0CFAE200712F12 /* AppDelegate.swift */; };
-		B7E2C3011D0CFAE200712F12 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = B7E2C3001D0CFAE200712F12 /* GameScene.sks */; };
 		B7E2C3031D0CFAE200712F12 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E2C3021D0CFAE200712F12 /* GameScene.swift */; };
 		B7E2C3051D0CFAE200712F12 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E2C3041D0CFAE200712F12 /* GameViewController.swift */; };
 		B7E2C3081D0CFAE200712F12 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B7E2C3061D0CFAE200712F12 /* Main.storyboard */; };
@@ -16,6 +16,7 @@
 		B7E2C30D1D0CFAE200712F12 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B7E2C30B1D0CFAE200712F12 /* LaunchScreen.storyboard */; };
 		B7E2C3181D0CFAE200712F12 /* ShooterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E2C3171D0CFAE200712F12 /* ShooterTests.swift */; };
 		B7E2C3231D0CFAE200712F12 /* ShooterUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E2C3221D0CFAE200712F12 /* ShooterUITests.swift */; };
+		B7E2C3311D0D0B0700712F12 /* StartScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7E2C3301D0D0B0700712F12 /* StartScene.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,10 +36,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		B71292EE1D2FEF1C00F708EC /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		B70F57EF1D6DCCF90031F839 /* redDragon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = redDragon.swift; sourceTree = "<group>"; };
 		B7E2C2FB1D0CFAE200712F12 /* Shooter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shooter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7E2C2FE1D0CFAE200712F12 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B7E2C3001D0CFAE200712F12 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
 		B7E2C3021D0CFAE200712F12 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		B7E2C3041D0CFAE200712F12 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		B7E2C3071D0CFAE200712F12 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -51,6 +65,7 @@
 		B7E2C31E1D0CFAE200712F12 /* ShooterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShooterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7E2C3221D0CFAE200712F12 /* ShooterUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShooterUITests.swift; sourceTree = "<group>"; };
 		B7E2C3241D0CFAE200712F12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B7E2C3301D0D0B0700712F12 /* StartScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartScene.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,8 +117,9 @@
 			isa = PBXGroup;
 			children = (
 				B7E2C2FE1D0CFAE200712F12 /* AppDelegate.swift */,
-				B7E2C3001D0CFAE200712F12 /* GameScene.sks */,
+				B7E2C3301D0D0B0700712F12 /* StartScene.swift */,
 				B7E2C3021D0CFAE200712F12 /* GameScene.swift */,
+				B70F57EF1D6DCCF90031F839 /* redDragon.swift */,
 				B7E2C3041D0CFAE200712F12 /* GameViewController.swift */,
 				B7E2C3061D0CFAE200712F12 /* Main.storyboard */,
 				B7E2C3091D0CFAE200712F12 /* Assets.xcassets */,
@@ -141,6 +157,7 @@
 				B7E2C2F71D0CFAE200712F12 /* Sources */,
 				B7E2C2F81D0CFAE200712F12 /* Frameworks */,
 				B7E2C2F91D0CFAE200712F12 /* Resources */,
+				B71292EE1D2FEF1C00F708EC /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
@@ -238,7 +255,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B7E2C3011D0CFAE200712F12 /* GameScene.sks in Resources */,
 				B7E2C30D1D0CFAE200712F12 /* LaunchScreen.storyboard in Resources */,
 				B7E2C30A1D0CFAE200712F12 /* Assets.xcassets in Resources */,
 				B7E2C3081D0CFAE200712F12 /* Main.storyboard in Resources */,
@@ -267,8 +283,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				B7E2C3031D0CFAE200712F12 /* GameScene.swift in Sources */,
+				B70F57F01D6DCCF90031F839 /* redDragon.swift in Sources */,
 				B7E2C3051D0CFAE200712F12 /* GameViewController.swift in Sources */,
 				B7E2C2FF1D0CFAE200712F12 /* AppDelegate.swift in Sources */,
+				B7E2C3311D0D0B0700712F12 /* StartScene.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,6 +515,7 @@
 				B7E2C3291D0CFAE200712F12 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B7E2C32A1D0CFAE200712F12 /* Build configuration list for PBXNativeTarget "ShooterTests" */ = {
 			isa = XCConfigurationList;
@@ -505,6 +524,7 @@
 				B7E2C32C1D0CFAE200712F12 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B7E2C32D1D0CFAE200712F12 /* Build configuration list for PBXNativeTarget "ShooterUITests" */ = {
 			isa = XCConfigurationList;
@@ -513,6 +533,7 @@
 				B7E2C32F1D0CFAE200712F12 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

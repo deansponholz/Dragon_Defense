@@ -14,21 +14,21 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let scene = GameScene(fileNamed:"GameScene") {
+            let scene = StartScene(size: CGSize(width: 1536, height: 2048))
             // Configure the view.
             let skView = self.view as! SKView
+            //skView.showsPhysics = true
             skView.showsFPS = true
             skView.showsNodeCount = true
-            
+            skView.multipleTouchEnabled = false
             /* Sprite Kit applies additional optimizations to improve rendering performance */
             skView.ignoresSiblingOrder = true
             
             /* Set the scale mode to scale to fit the window */
             scene.scaleMode = .AspectFill
-            
             skView.presentScene(scene)
         }
-    }
+    
 
     override func shouldAutorotate() -> Bool {
         return true
@@ -36,7 +36,7 @@ class GameViewController: UIViewController {
 
     override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
         if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-            return .AllButUpsideDown
+            return .Portrait
         } else {
             return .All
         }
