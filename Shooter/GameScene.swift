@@ -105,15 +105,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     func startGame(){
 
-        loadAppearance_Dragon()
-        loadAppearance_DragonProjectile()
+        //loadAppearance_Dragon()
+        //loadAppearance_DragonProjectile()
         loadAppearance_Bullet()
-        dragonFlyAnimation()
+        //dragonFlyAnimation()
 
-        eggMoveRight()
-        shootProjectile()
+        //eggMoveRight()
+        //shootProjectile()
         
-        NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
+        NSTimer.scheduledTimerWithTimeInterval(1.5, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
         
         
     }
@@ -129,8 +129,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
     }
     func rightBar(){
-        rightBarNode = SKSpriteNode(color: UIColor.blackColor(), size: CGSizeMake(self.frame.size.width * 0.15, self.frame.size.height))
-        rightBarNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2)
+        rightBarNode = SKSpriteNode(color: UIColor.blackColor(), size: CGSizeMake(self.frame.size.width * 0.045, self.frame.size.height))
+        rightBarNode.position = CGPointMake(self.frame.size.width * 1.1 , self.frame.size.height / 2)
         rightBarNode.physicsBody = SKPhysicsBody(rectangleOfSize: rightBarNode.size)
         rightBarNode.physicsBody?.affectedByGravity = false
         rightBarNode.physicsBody?.dynamic = true
@@ -321,6 +321,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
     }
     
+    func dragonMoveRight(enemy: SKSpriteNode){
+        
+        //collisionHappened = false
+        
+        destinationPoint = loadRandDestinationRight()
+        
+        //print(destinationPoint, "dragon")
+        
+        let moveDragon = SKAction.moveTo(destinationPoint, duration: dragonFlightSpeed)
+        //let xPoint = loadRandDropLocation()
+        //loadAppearance_DragonProjectile()
+        //print(xPoint)
+        enemy.runAction(moveDragon)
+        
+        //var number = loadRandDropLocation()
+        //print(number)
+        
+        
+        //shootProjectile()
+        //shootTimer = NSTimer.scheduledTimerWithTimeInterval(loadRandDropTime(), target: self, selector: #selector(shootProjectile), userInfo: nil, repeats: false)
+        //print(loadRandDropTime())
+        //shootProjectile(dragonProjectileNode)
+        //shoot node at that nigga
+        
+    }
+    
+    func dragonFlyAnimation(enemy: SKSpriteNode){
+        enemy.runAction(SKAction.repeatActionForever(SKAction.animateWithTextures(dragonFlyFrames, timePerFrame: 0.125)))
+    }
+    
     func spawnEnemies(){
         let enemy = loadAppearance_Dragon()
         /*
@@ -332,8 +362,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         enemy.physicsBody?.collisionBitMask = bulletCategory | frameCategory
         enemy.physicsBody?.contactTestBitMask = bulletCategory | frameCategory
  */
+        enemy.name = "enemyDragon"
         self.addChild(enemy)
         dragonMoveRight(enemy)
+        dragonFlyAnimation(enemy)
         
     }
     func loadAppearance_DragonProjectile(){
@@ -399,9 +431,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
   
     }
     
-    func dragonFlyAnimation(){
-        dragonNode.runAction(SKAction.repeatActionForever(SKAction.animateWithTextures(dragonFlyFrames, timePerFrame: 0.125)))
-    }
+
     func castleLoadAppearance_healthbar(){
         healthbarFrame = SKSpriteNode(imageNamed: "healthBarFrame")
         healthbarFrame.position = CGPointMake(self.frame.size.width * 0.670, self.frame.size.height * 0.8)
@@ -426,31 +456,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
     }
     
-    func dragonMoveRight(enemy: SKSpriteNode){
-        
-        //collisionHappened = false
-        
-        destinationPoint = loadRandDestinationRight()
-        
-        //print(destinationPoint, "dragon")
-        
-        let moveDragon = SKAction.moveTo(destinationPoint, duration: dragonFlightSpeed)
-        //let xPoint = loadRandDropLocation()
-        //loadAppearance_DragonProjectile()
-        //print(xPoint)
-        enemy.runAction(moveDragon)
-        
-        //var number = loadRandDropLocation()
-        //print(number)
-        
-        
-        //shootProjectile()
-        //shootTimer = NSTimer.scheduledTimerWithTimeInterval(loadRandDropTime(), target: self, selector: #selector(shootProjectile), userInfo: nil, repeats: false)
-        //print(loadRandDropTime())
-            //shootProjectile(dragonProjectileNode)
-            //shoot node at that nigga
- 
-    }
     
     func eggMoveRight(){
         
@@ -512,9 +517,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         let firstBody = contact.bodyA
         let secondBody = contact.bodyB
         
-        if firstBody.categoryBitMask == dragonCategory && secondBody.categoryBitMask == frameCategory || firstBody.categoryBitMask == frameCategory && secondBody.categoryBitMask == dragonCategory {
+        if firstBody.categoryBitMask == dragonCategory && secondBody.categoryBitMask == frameCategory && collisionHappenedDragon_Frame != true || firstBody.categoryBitMask == frameCategory && secondBody.categoryBitMask == dragonCategory && collisionHappenedDragon_Frame != true {
+            
             collisionHappenedDragon_Frame = true
-            print("yFFFFFFou died")
+            
+            if firstBody.node?.name == "enemyDragon"{
+                firstBody.node?.removeFromParent()
+            }
+            else if secondBody.node?.name == "enemyDragon"{
+                secondBody.node?.removeFromParent()
+            }
+            
         }
         
         if firstBody.categoryBitMask == bulletCategory && secondBody.categoryBitMask == dragonCategory && collisionHappenedDragon_Bullet != true || firstBody.categoryBitMask == dragonCategory && secondBody.categoryBitMask == bulletCategory && collisionHappenedDragon_Bullet != true {
@@ -535,6 +548,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
                 //dragonProjectileNode.removeFromParent()
                 
                 //resetDragon()
+                if firstBody.node?.name == "enemyDragon"{
+                    firstBody.node?.removeFromParent()
+                }
+                else if secondBody.node?.name == "enemyDragon"{
+                    secondBody.node?.removeFromParent()
+                }
                 
             }
             
