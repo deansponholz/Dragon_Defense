@@ -42,8 +42,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     var bulletNode = SKSpriteNode()
     var scopeNode = SKSpriteNode()
     var turretNode = SKSpriteNode()
+    var rightBarNode = SKSpriteNode()
     
-    
+    var enemy = SKSpriteNode()
     var dragonNode = SKSpriteNode()
     var atlas = SKTextureAtlas()
     var dragonFlyFrames : [SKTexture]!
@@ -57,6 +58,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     var collisionHappenedDragon_Bullet = Bool()
     var collisionHappenedProjectile_Turret = Bool()
     var collisionHappenedProjectile_Bullet = Bool()
+    var collisionHappenedDragon_Frame = Bool()
     var vx = CGFloat()
     var vy = CGFloat()
     
@@ -73,128 +75,72 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let dragonCategory: UInt32 = 0x1 << 1
     let dragonProjectileCategory: UInt32 = 0x1 << 2
     let turretCategory: UInt32 = 0x1 << 3
+    let frameCategory: UInt32 = 0x1 << 4
     //let eggCategory: UInt32 = 0x1 << 4
-    
-    var sceneBody = SKPhysicsBody()
+
     
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
         createScene()
-    }
-    
-    func createScene(){
-        
-        //backgroundColor = UIColor.blackColor()
-        
-        loadAppearance_Background()
-        loadAppearance_Bullet()
-        loadAppearance_EggScoreLabel()
-        loadAppearance_ScoreLabel()
-        loadAppearance_MainMenuLabel()
-        loadAppearance_Turret()
-        castleLoadAppearance_healthbar()
-        loadAppearance_Dragon()
-        loadAppearance_DragonProjectile()
-        addPhysicsWorld()
         startGame()
         
     }
     
-    func startGame(){
-        dragonFlyAnimation()
-        dragonMoveRight()
-        eggMoveRight()
-        shootProjectile()
-        //spawnEnemies()
-        arrayDragons()
+    func createScene(){
         
+        backgroundColor = UIColor.whiteColor()
         
-    }
-    
-    func resetDragon(){
-        dragonProjectileNode.removeFromParent()
-        dragonNode.removeFromParent()
-        
-        self.addChild(dragonNode)
-        self.addChild(dragonProjectileNode)
-        let point = loadRandSpawnLeft()
-        dragonNode.runAction(SKAction.moveTo(point, duration: 0.0))
-        dragonProjectileNode.runAction(SKAction.moveTo(point, duration: 0.0))
-        
-        dragonMoveRight()
-        eggMoveRight()
-        shootProjectile()
-        
-    }
-    
-    func arrayDragons(){
-        var arraySprites :[SKSpriteNode] = [SKSpriteNode]()
-        
-        for i in 0 ..< 60 {
-            let name = "dragonSprite \(i)"
-            let dragonSprite : SKSpriteNode!
-            let dragonAnimatedAtlas = SKTextureAtlas(named: "redDragonSprites")
-            var flyFrames = [SKTexture]()
-            let numImages = dragonAnimatedAtlas.textureNames.count
-            for var i=1; i<=numImages; i++ {
-                let dragonTextureName = "redDragon\(i)"
-                flyFrames.append(dragonAnimatedAtlas.textureNamed(dragonTextureName))
-            }
+        //loadAppearance_Background()
+        loadAppearance_MainMenuLabel()
+        loadAppearance_EggScoreLabel()
+        loadAppearance_ScoreLabel()
 
-            dragonFlyFrames = flyFrames
-            let firstFrame = dragonFlyFrames[0]
-            dragonSprite = SKSpriteNode(texture: firstFrame)
-            dragonSprite.name = name
-            dragonSprite.anchorPoint = CGPointMake(0.5, 0.5)
-            //dragonNode.setScale(0.225)
-            dragonSprite.zPosition = 2
-            dragonSprite.position = loadRandSpawnLeft()
-            dragonSprite.name = "redDragon"
-            dragonSprite.physicsBody = SKPhysicsBody(texture: dragonNode.texture!, size: CGSizeMake(dragonNode.size.width, dragonNode.size.height))
-            dragonSprite.physicsBody?.affectedByGravity = false
-            dragonSprite.physicsBody?.dynamic = false
-            dragonSprite.physicsBody?.categoryBitMask = dragonCategory
-            dragonSprite.physicsBody?.collisionBitMask = bulletCategory
-            dragonSprite.physicsBody?.contactTestBitMask = bulletCategory
-            
-            arraySprites.append(dragonSprite)
-            
-            let action = SKAction.waitForDuration(1)
-            let action1 = SKAction.a
-            
-        }
-        for SKSpriteNode in arraySprites{
-            let spawnEnemy = SKAction.sequence([SKAction.runBlock(
-                {
-                    [unowned self] in
-                    self.addChild(SKSpriteNode)
-                }),SKAction.waitForDuration(1)]);
-            self.addChild(SKSpriteNode)
-            SKSpriteNode.runAction(spawnEnemy)
-        }
-        
+        loadAppearance_Turret()
+        castleLoadAppearance_healthbar()
+        rightBar()
+        addPhysicsWorld()
         
     }
     
-    func spawnEnemies(){
-        let spawnEnemy = SKAction.sequence([SKAction.runBlock(
-            {
-                [unowned self] in
-                self.loadAppearance_Dragon();
-            }),SKAction.waitForDuration(1)]);
+    func startGame(){
+
+        loadAppearance_Dragon()
+        loadAppearance_DragonProjectile()
+        loadAppearance_Bullet()
+        dragonFlyAnimation()
+
+        eggMoveRight()
+        shootProjectile()
+        
+        NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
+        
+        
     }
     
     func loadAppearance_Background(){
         backgroundImageNode = SKSpriteNode(imageNamed: "graph")
-        self.name = "self"
         backgroundImageNode.size = CGSizeMake(self.frame.size.width, self.frame.size.height)
         backgroundImageNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2)
         backgroundImageNode.name = "background"
         backgroundImageNode.zPosition = 0
         self.addChild(backgroundImageNode)
+        
+
     }
-    
+    func rightBar(){
+        rightBarNode = SKSpriteNode(color: UIColor.blackColor(), size: CGSizeMake(self.frame.size.width * 0.15, self.frame.size.height))
+        rightBarNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2)
+        rightBarNode.physicsBody = SKPhysicsBody(rectangleOfSize: rightBarNode.size)
+        rightBarNode.physicsBody?.affectedByGravity = false
+        rightBarNode.physicsBody?.dynamic = true
+        rightBarNode.physicsBody!.categoryBitMask = frameCategory
+        rightBarNode.physicsBody!.usesPreciseCollisionDetection = true
+
+        rightBarNode.physicsBody!.collisionBitMask = 0
+        rightBarNode.physicsBody!.contactTestBitMask = dragonCategory
+        self.addChild(rightBarNode)
+    }
     func loadAppearance_MainMenuLabel(){
         //ReloadLabel
         mainMenuLabel = SKLabelNode(fontNamed:"Chalkduster")
@@ -237,6 +183,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         eggLabelScoreNode.zPosition = 1
         self.addChild(eggLabelScoreNode)
         
+    }
+    
+    func loadAppearance_Turret(){
+        //turretNode
+        turretNode = SKSpriteNode(imageNamed: "turret")
+        turretNode.anchorPoint = CGPointMake(0.5, 0.5)
+        turretNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height * 0.09)
+        turretNode.zPosition = 3
+        turretNode.physicsBody = SKPhysicsBody(texture: turretNode.texture!, size: CGSizeMake(turretNode.size.width, turretNode.size.height))
+        turretNode.physicsBody?.affectedByGravity = false
+        turretNode.physicsBody?.dynamic = false
+        turretNode.physicsBody?.categoryBitMask = turretCategory
+        turretNode.physicsBody?.restitution = 0
+        //turretNode.physicsBody?.collisionBitMask = dragonProjectileCategory
+        turretNode.physicsBody?.contactTestBitMask = dragonProjectileCategory
+        self.addChild(turretNode)
     }
     
     func loadAppearance_Bullet(){
@@ -293,23 +255,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     
     
-    func loadAppearance_Turret(){
-        //turretNode
-        turretNode = SKSpriteNode(imageNamed: "turret")
-        turretNode.anchorPoint = CGPointMake(0.5, 0.5)
-        turretNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height * 0.09)
-        turretNode.zPosition = 3
-        turretNode.physicsBody = SKPhysicsBody(texture: turretNode.texture!, size: CGSizeMake(turretNode.size.width, turretNode.size.height))
-        turretNode.physicsBody?.affectedByGravity = false
-        turretNode.physicsBody?.dynamic = false
-        turretNode.physicsBody?.categoryBitMask = turretCategory
-        turretNode.physicsBody?.restitution = 0
-        //turretNode.physicsBody?.collisionBitMask = dragonProjectileCategory
-        turretNode.physicsBody?.contactTestBitMask = dragonProjectileCategory
-        self.addChild(turretNode)
-    }
+
     
-    func loadAppearance_Dragon(){
+    func loadAppearance_Dragon() -> SKSpriteNode{
 
         /*
         let dragonAnimatedAtlas = SKTextureAtlas(named: "greenDragonSprites")
@@ -342,8 +290,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         dragonNode.physicsBody?.affectedByGravity = false
         dragonNode.physicsBody?.dynamic = false
         dragonNode.physicsBody?.categoryBitMask = dragonCategory
-        dragonNode.physicsBody?.collisionBitMask = bulletCategory
-        dragonNode.physicsBody?.contactTestBitMask = bulletCategory
+        dragonNode.physicsBody?.usesPreciseCollisionDetection = true
+        dragonNode.physicsBody?.collisionBitMask = bulletCategory | frameCategory
+        //dragonNode.physicsBody?.collisionBitMask = frameCategory
+        dragonNode.physicsBody?.contactTestBitMask = bulletCategory | frameCategory
+        //dragonNode.physicsBody?.contactTestBitMask = frameCategory
+        return dragonNode
         //loadAppearance_DragonProjectile()
         //dragonLoadAppearance_healthbar()
         //dragonFlyAnimation()
@@ -351,6 +303,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
         
         //self.addChild(dragonNode)
+    }
+    
+    
+    func resetDragon(){
+
+        dragonNode.removeFromParent()
+        
+        self.addChild(dragonNode)
+        self.addChild(dragonProjectileNode)
+        let point = loadRandSpawnLeft()
+        dragonNode.runAction(SKAction.moveTo(point, duration: 0.0))
+        dragonProjectileNode.runAction(SKAction.moveTo(point, duration: 0.0))
+        
+        eggMoveRight()
+        shootProjectile()
+        
+    }
+    
+    func spawnEnemies(){
+        let enemy = loadAppearance_Dragon()
+        /*
+        enemy.physicsBody = SKPhysicsBody(texture: enemy.texture!, size: CGSizeMake(enemy.size.width, enemy.size.height))
+        enemy.physicsBody?.affectedByGravity = false
+        enemy.physicsBody?.dynamic = false
+        enemy.physicsBody?.categoryBitMask = dragonCategory
+        enemy.physicsBody?.usesPreciseCollisionDetection = true
+        enemy.physicsBody?.collisionBitMask = bulletCategory | frameCategory
+        enemy.physicsBody?.contactTestBitMask = bulletCategory | frameCategory
+ */
+        self.addChild(enemy)
+        dragonMoveRight(enemy)
+        
     }
     func loadAppearance_DragonProjectile(){
         let projectileAnimatedAtlas = SKTextureAtlas(named: "Eggs")
@@ -442,19 +426,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
     }
     
-    func dragonMoveRight(){
+    func dragonMoveRight(enemy: SKSpriteNode){
         
         //collisionHappened = false
         
         destinationPoint = loadRandDestinationRight()
         
-        print(destinationPoint, "dragon")
+        //print(destinationPoint, "dragon")
         
         let moveDragon = SKAction.moveTo(destinationPoint, duration: dragonFlightSpeed)
         //let xPoint = loadRandDropLocation()
         //loadAppearance_DragonProjectile()
         //print(xPoint)
-        dragonNode.runAction(moveDragon)
+        enemy.runAction(moveDragon)
         
         //var number = loadRandDropLocation()
         //print(number)
@@ -470,7 +454,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     func eggMoveRight(){
         
-        print(destinationPoint, "egg")
+        //print(destinationPoint, "egg")
         let moveEgg = SKAction.moveTo(destinationPoint, duration: dragonFlightSpeed)
         dragonProjectileNode.runAction(moveEgg)
     }
@@ -514,18 +498,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         //x is 0 for no side to side
         //-9.8 is gravity on Earth
         self.physicsWorld.gravity = CGVectorMake(0, 0)
+        physicsWorld.contactDelegate = self
         //close off the frame with a physicsbody
         //sceneBody = SKPhysicsBody(edgeLoopFromRect: self.frame)
         //friction - ball will bounce back at same speed
-        sceneBody.friction = 0
+        self.name = "self"
+        self.physicsBody?.friction = 0
         //apply physics body to scene
-        self.physicsBody = sceneBody
-        physicsWorld.contactDelegate = self
+
     }
 
     func didBeginContact(contact: SKPhysicsContact) {
         let firstBody = contact.bodyA
         let secondBody = contact.bodyB
+        
+        if firstBody.categoryBitMask == dragonCategory && secondBody.categoryBitMask == frameCategory || firstBody.categoryBitMask == frameCategory && secondBody.categoryBitMask == dragonCategory {
+            collisionHappenedDragon_Frame = true
+            print("yFFFFFFou died")
+        }
         
         if firstBody.categoryBitMask == bulletCategory && secondBody.categoryBitMask == dragonCategory && collisionHappenedDragon_Bullet != true || firstBody.categoryBitMask == dragonCategory && secondBody.categoryBitMask == bulletCategory && collisionHappenedDragon_Bullet != true {
             
@@ -544,7 +534,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
                 //dragonProjectileNode.removeFromParent()
                 //dragonProjectileNode.removeFromParent()
                 
-                resetDragon()
+                //resetDragon()
                 
             }
             
@@ -591,7 +581,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             collisionHappenedProjectile_Turret = true
             dragonProjectileNode.removeFromParent()
             healthbar.runAction(SKAction.resizeToWidth(self.frame.size.width * 0.15, height: healthbar.size.height, duration: 0.25))
-            print("you died")
+            //print("you died")
             loadAppearance_DragonProjectile()
             eggMoveRight()
             //turretNode.runAction(SKAction.moveTo(CGPointMake(self.frame.size.width / 2, self.frame.size.height * 0.09), duration: 0))
@@ -686,10 +676,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         collisionHappenedDragon_Bullet = false
         collisionHappenedProjectile_Turret = false
         collisionHappenedProjectile_Bullet = false
+        collisionHappenedDragon_Frame = false
+        
+        /*
         if dragonNode.position.x > self.frame.size.width * 0.9999999{
-            
-            resetDragon()
+            self.removeAllChildren()
         }
+ */
         
         if bulletNode.position.y > self.frame.size.height || bulletNode.position.y < self.frame.size.height * 0.00001 || bulletNode.position.x < self.frame.size.width * 0.0000001 || bulletNode.position.x > self.frame.size.width{
             scopeNode.removeFromParent()
