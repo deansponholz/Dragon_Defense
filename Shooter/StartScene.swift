@@ -18,7 +18,7 @@ class StartScene: SKScene {
         
         backgroundColor = SKColor.whiteColor()
         let dragonImageMifsud = SKSpriteNode.init(imageNamed: "mifsudDragon")
-        dragonImageMifsud.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2)
+        dragonImageMifsud.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 1.5)
         
         self.addChild(dragonImageMifsud)
         
