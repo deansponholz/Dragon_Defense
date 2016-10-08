@@ -24,11 +24,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Shooter/GameScene.swift"
-            timestampString = "496905589.445216"
+            timestampString = "497658982.190739"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "510"
-            endingLineNumber = "510"
+            startingLineNumber = "530"
+            endingLineNumber = "530"
             landmarkName = "shootProjectile(_:enemyParam:)"
             landmarkType = "5">
          </BreakpointContent>
@@ -40,28 +40,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Shooter/GameScene.swift"
-            timestampString = "496905589.445216"
+            timestampString = "497657942.962074"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "497"
-            endingLineNumber = "497"
-            landmarkName = "shootProjectile(_:enemyParam:)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Shooter/GameScene.swift"
-            timestampString = "496905589.445216"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
-            landmarkName = "shootProjectile(_:enemyParam:)"
+            startingLineNumber = "422"
+            endingLineNumber = "422"
+            landmarkName = "spawnEnemies()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

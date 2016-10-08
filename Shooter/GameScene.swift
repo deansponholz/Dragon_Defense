@@ -32,14 +32,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     var eggLabelNode = SKSpriteNode()
     var eggLabelScoreNode = SKLabelNode()
     
+    var userDefaults = NSUserDefaults()
+    var hitCount:Int = 0
+    var highScoreShow = Int()
     var score: Int = 0
     var eggScore: Int = 0
-    
+    var myTimer = NSTimer()
+    var test: Bool = true
     var destinationPoint = CGPoint()
     var eggSpawnInt: Int = 0
-    var enemyRespawnSpeed: Double = 3.0
-    var dragonFlightSpeed: Double = 7.0
-    var projectileFlightSpeed: Double = 6.5
+    var enemyRespawnSpeed: Double = 2.0
+    var dragonFlightSpeed: Double = 4.0
+    var projectileFlightSpeed: Double = 3.5
         //interactive
     var bulletNode = SKSpriteNode()
     var scopeNode = SKSpriteNode()
@@ -47,7 +51,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     var rightBarNode = SKSpriteNode()
     
     var enemy = SKSpriteNode()
-    var projectile = SKSpriteNode()
+    var enemyPosition = CGPoint()
+    var projectileNode = SKSpriteNode()
     var dragonNode = SKSpriteNode()
     var atlas = SKTextureAtlas()
     var dragonFlyFrames : [SKTexture]!
@@ -55,7 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     var dragonProjectileNode = SKSpriteNode()
     var healthbar = SKSpriteNode()
     var healthbarFrame = SKSpriteNode()
-    var healthRatio = Int()
+    var healthRatio: Int = 1
     
     //var shootTimer = NSTimer()
     var dragonDied = Bool()
@@ -99,7 +104,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         loadAppearance_MainMenuLabel()
         loadAppearance_EggScoreLabel()
         loadAppearance_ScoreLabel()
-
+        loadAppearance_Bullet()
         loadAppearance_Turret()
         castleLoadAppearance_healthbar()
         rightBar()
@@ -111,13 +116,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
         //loadAppearance_Dragon()
         //loadAppearance_DragonProjectile()
-        loadAppearance_Bullet()
+        
         //dragonFlyAnimation()
         //spawnEnemies()
         //eggMoveRight()
         //shootProjectile()
         
-        NSTimer.scheduledTimerWithTimeInterval(enemyRespawnSpeed, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
+        myTimer = NSTimer.scheduledTimerWithTimeInterval(enemyRespawnSpeed, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
         //levelManager()
         
     }
@@ -170,7 +175,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         self.addChild(eggLabelNode)
         //eggScoreLabel
         eggLabelScoreNode = SKLabelNode(fontNamed: "Chalkduster")
-        eggLabelScoreNode.text = "0"
+        let x = (String(userDefaults.valueForKey("highscore")!))
+        eggLabelScoreNode.text = x
         eggLabelScoreNode.fontSize = 80
         eggLabelScoreNode.position = CGPointMake(self.frame.size.width * 0.085, self.frame.size.height * 0.025)
         eggLabelScoreNode.fontColor = UIColor.blackColor()
@@ -217,6 +223,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func loadAppearance_Bullet(){
+        
         //objectShotNode
         bulletNode = SKSpriteNode(imageNamed: "bullet")
         let texture = SKTexture(imageNamed: "bullet")
@@ -225,8 +232,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         bulletNode.anchorPoint = CGPointMake(0.5, 0.5)
         bulletNode.position = CGPointMake(self.frame.size.width * 0.5085, self.frame.size.height * 0.20)
         bulletNode.zPosition = 2
-     
- 
         bulletNode.physicsBody = SKPhysicsBody(texture: texture, size: texture.size())
         bulletNode.physicsBody?.affectedByGravity = false
         bulletNode.physicsBody?.dynamic = true
@@ -241,14 +246,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func resetBullet(){
-        
-            //let resetBulletAction = SKAction.moveTo(CGPointMake(self.frame.size.width * 0.5385, self.frame.size.height * 0.175), duration: 0.0)
-            bulletNode.removeFromParent()
-            loadAppearance_Bullet()
-        
-           // bulletNode.runAction(resetBulletAction)
-            bulletNode.zRotation = 0
-            view?.userInteractionEnabled = true
+
+        bulletNode.removeFromParent()
+        loadAppearance_Bullet()
+    
+        bulletNode.zRotation = 0
+        view?.userInteractionEnabled = true
     }
     
     func loadAppearance_Scope(){
@@ -263,6 +266,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func colorizeScope(scopeNode: SKSpriteNode){
+        
         let fadeOutAction = SKAction.fadeOutWithDuration(0.425)
         let hideAction = SKAction.hide()
         let actionSequence = SKAction.sequence([fadeOutAction, hideAction])
@@ -275,17 +279,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     func loadAppearance_Dragon() -> SKSpriteNode{
 
-        /*
-        let dragonAnimatedAtlas = SKTextureAtlas(named: "greenDragonSprites")
-        var flyFrames = [SKTexture]()
-        let numImages = dragonAnimatedAtlas.textureNames.count
-        for var i=1; i<=numImages; i++ {
-            let dragonTextureName = "greenDragon\(i)"
-            flyFrames.append(dragonAnimatedAtlas.textureNamed(dragonTextureName))
-        }
-        dragonFlyFrames = flyFrames
-        let firstFrame = dragonFlyFrames[0]
-        */
         let dragonAnimatedAtlas = SKTextureAtlas(named: "redDragonSprites")
         var flyFrames = [SKTexture]()
         let numImages = dragonAnimatedAtlas.textureNames.count
@@ -312,6 +305,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         dragonNode.physicsBody?.contactTestBitMask = bulletCategory | frameCategory
         //dragonNode.physicsBody?.contactTestBitMask = frameCategory
         return dragonNode
+        
     }
     
     func resetDragon(){
@@ -329,43 +323,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     func dragonMoveRight(enemy: SKSpriteNode){
         
-        //collisionHappened = false
-        
         destinationPoint = loadRandDestinationRight()
         
         //print(destinationPoint, "dragon")
         
         
         if score == 5{
-            dragonFlightSpeed = 6.66
+            dragonFlightSpeed = 3.8
+            myTimer.invalidate()
+            myTimer = NSTimer.scheduledTimerWithTimeInterval(1.7, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
             //projectileFlightSpeed = 4.25
         }
         
         if score == 10{
-            dragonFlightSpeed = 6.33
+            dragonFlightSpeed = 3.6
+            myTimer.invalidate()
+            myTimer = NSTimer.scheduledTimerWithTimeInterval(1.5, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
             //projectileFlightSpeed = 3.75
         }
         
         if score == 15{
-            dragonFlightSpeed = 6.0
+            dragonFlightSpeed = 3.4
+            myTimer.invalidate()
+            myTimer = NSTimer.scheduledTimerWithTimeInterval(1.3, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
             //projectileFlightSpeed = 3.25
         }
         if score == 20{
-            dragonFlightSpeed = 5.66
+            dragonFlightSpeed = 3.2
+            myTimer.invalidate()
+            myTimer = NSTimer.scheduledTimerWithTimeInterval(1.1, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
             //projectileFlightSpeed = 2.75
         }
         if score == 25{
-            dragonFlightSpeed = 5.33
+            dragonFlightSpeed = 3.0
+            myTimer.invalidate()
+            myTimer = NSTimer.scheduledTimerWithTimeInterval(0.9, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
             //projectileFlightSpeed = 2.25
         }
         if score == 30{
-            dragonFlightSpeed = 5.0
+            dragonFlightSpeed = 2.8
+            myTimer.invalidate()
+            myTimer = NSTimer.scheduledTimerWithTimeInterval(0.7, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
             //projectileFlightSpeed = 1.75
         }
         if score == 35{
-            dragonFlightSpeed = 4.66
+            dragonFlightSpeed = 2.6
+            myTimer.invalidate()
+            myTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: ("spawnEnemies"), userInfo: nil, repeats: true)
             //projectileFlightSpeed = 1.75
         }
+        /*
         if score == 40{
             dragonFlightSpeed = 4.33
             //projectileFlightSpeed = 1.75
@@ -378,23 +385,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             dragonFlightSpeed = 3.66
             //projectileFlightSpeed = 1.75
         }
+ */
         
         let moveDragon = SKAction.moveTo(destinationPoint, duration: dragonFlightSpeed)
-        //let xPoint = loadRandDropLocation()
-        //loadAppearance_DragonProjectile()
-        //print(xPoint)
         enemy.runAction(moveDragon)
-        
-        //var number = loadRandDropLocation()
-        //print(number)
-        
-        
-        //shootProjectile()
-        //shootTimer = NSTimer.scheduledTimerWithTimeInterval(loadRandDropTime(), target: self, selector: #selector(shootProjectile), userInfo: nil, repeats: false)
-        //print(loadRandDropTime())
-        //shootProjectile(dragonProjectileNode)
-        //shoot node at that nigga
-        
     }
     
     func dragonFlyAnimation(enemy: SKSpriteNode){
@@ -402,19 +396,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func spawnEnemies(){
+        //dragonDied = true
         enemy = loadAppearance_Dragon()
-        let projectileNode = loadAppearance_DragonProjectile()
+        projectileNode = loadAppearance_DragonProjectile()
         
-        
-        /*
-        enemy.physicsBody = SKPhysicsBody(texture: enemy.texture!, size: CGSizeMake(enemy.size.width, enemy.size.height))
-        enemy.physicsBody?.affectedByGravity = false
-        enemy.physicsBody?.dynamic = false
-        enemy.physicsBody?.categoryBitMask = dragonCategory
-        enemy.physicsBody?.usesPreciseCollisionDetection = true
-        enemy.physicsBody?.collisionBitMask = bulletCategory | frameCategory
-        enemy.physicsBody?.contactTestBitMask = bulletCategory | frameCategory
- */
         enemy.name = "enemyDragon"
         projectileNode.name = "enemyProjectile"
         self.addChild(enemy)
@@ -423,7 +408,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         //dragonProjectileNode.position = enemy.position
         dragonMoveRight(enemy)
         dragonFlyAnimation(enemy)
-        shootProjectile(projectileNode, enemyParam: enemy)
+        
+        /*
+        let delay = SKAction.waitForDuration(loadRandDropTime())
+        let loadAction = SKAction.runBlock {
+            if self.dragonDied != true{
+                self.projectileNode.position = self.enemy.position
+                self.projectileNode.hidden = false
+            }
+        }
+        let shoot = SKAction.runBlock {
+            if self.dragonDied != true{
+                self.shootProjectile(self.projectileNode, enemyParam: self.enemy)
+            }
+            self.dragonDied = false
+        }
+ 
+        
+        let sequence = SKAction.sequence([delay, loadAction, shoot])
+        projectileNode.runAction(sequence)
+ */
+        shootProjectileTest(projectileNode, enemyParam: enemy)
 
         
         
@@ -442,12 +447,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
         let dragonProjectileNode = SKSpriteNode(texture: firstFrame)
         //dragonProjectileNode = SKSpriteNode(color: UIColor.blackColor(), size: CGSizeMake(self.frame.size.width * 0.065, self.frame.size.width * 0.065))
-        dragonProjectileNode.setScale(0.65)
+        dragonProjectileNode.setScale(0.775)
         
         //dragonProjectileNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height * 0.09)
         dragonProjectileNode.zPosition = 3
         //dragonProjectileNode.name = "projectile"
-        dragonProjectileNode.physicsBody = SKPhysicsBody(texture: dragonProjectileNode.texture!, size: CGSizeMake(dragonProjectileNode.size.width, dragonProjectileNode.size.height))
+        dragonProjectileNode.physicsBody = SKPhysicsBody(texture: dragonProjectileNode.texture!, size: (dragonProjectileNode.texture?.size())!)
+        //dragonProjectileNode.physicsBody = SKPhysicsBody(texture: dragonProjectileNode.texture!, size: CGSizeMake(dragonProjectileNode.size.width, dragonProjectileNode.size.height))
         dragonProjectileNode.physicsBody?.collisionBitMask = turretCategory
         dragonProjectileNode.physicsBody?.affectedByGravity = false
         dragonProjectileNode.physicsBody?.dynamic = true
@@ -462,55 +468,70 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         //dragonNode.addChild(dragonProjectileNode)
     }
     
-    func eggFlyAnimation(){
-        dragonProjectileNode.runAction(SKAction.repeatActionForever(SKAction.animateWithTextures(eggFlyFrames, timePerFrame: 0.225)))
+    func eggFlyAnimation(projectile: SKSpriteNode){
+        projectile.runAction(SKAction.repeatActionForever(SKAction.animateWithTextures(eggFlyFrames, timePerFrame: 0.225)))
     }
-    func shootProjectile(projectileNode: SKSpriteNode, enemyParam: SKSpriteNode) {
+    
+    func shootProjectileTest(projectileNode: SKSpriteNode, enemyParam: SKSpriteNode){
         
         
         //aim
         let dx = turretNode.position.x - dragonNode.position.x
         let dy = turretNode.position.y - dragonNode.position.y
         let angle = atan2(dy, dx)
-        //dragonProjectileNode.zRotation = angle
+        
+        //Seek
+        var vx = turretNode.position.x
+        var vy = turretNode.position.y
+        
+        
+        let shootAction = SKAction.moveTo(CGPointMake(vx, vy),duration: projectileFlightSpeed)
+        
+        
+        
+        let delay = SKAction.waitForDuration(loadRandDropTime())
+        
+        let loadAction = SKAction.runBlock {
+            if self.dragonDied != true{
+                projectileNode.position = enemyParam.position
+                projectileNode.hidden = false
+            }
+        }
+        
+        let shoot = SKAction.runBlock {
+            if self.dragonDied != true{
+                projectileNode.runAction(shootAction)
+                self.eggFlyAnimation(projectileNode)
+            }
+            self.dragonDied = false
+        }
+        
+        let sequence = SKAction.sequence([delay, loadAction, shoot])
+        projectileNode.runAction(sequence)
+
+    }
+    
+    func shootProjectile(projectileNode: SKSpriteNode, enemyParam: SKSpriteNode) {
+        
+        //aim
+        let dx = turretNode.position.x - dragonNode.position.x
+        let dy = turretNode.position.y - dragonNode.position.y
+        let angle = atan2(dy, dx)
         
         //Seek
         var vx = turretNode.position.x
         var vy = turretNode.position.y
 
-
-        //dragonProjectileNode.removeFromParent()
-        //shoot
         
-        let delay = SKAction.waitForDuration(loadRandDropTime())
-        
-        let loadAction = SKAction.runBlock {
-            projectileNode.position = enemyParam.position
-            projectileNode.hidden = false
-            
-            
-            //projectileNode.position = self.dragonNode.position
-            //self.enemy.addChild(projectileNode)
-            
-            
-        }
         let shootAction = SKAction.moveTo(CGPointMake(vx, vy),duration: projectileFlightSpeed)
-        let sequence = SKAction.sequence([delay, loadAction, shootAction])
-        projectileNode.runAction(sequence)
 
         
-        
-        
-        //eggFlyAnimation()
-        //dragonProjectileNode.removeFromParent()
-        //dragonProjectileNode.hidden = false
-        //dragonProjectileNode.runAction(SKAction.sequence([delay, shootAction]))
-        //dragonProjectileNode.runAction(shootAction)
-  
+        projectileNode.runAction(shootAction)
     }
     
 
     func castleLoadAppearance_healthbar(){
+        
         healthbarFrame = SKSpriteNode(imageNamed: "healthBarFrame")
         healthbarFrame.position = CGPointMake(self.frame.size.width * 0.670, self.frame.size.height * 0.8)
         healthbarFrame.setScale(2.0)
@@ -526,26 +547,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         healthbar.position = CGPointMake(self.frame.size.width * 0.7, self.frame.size.height * 0.9615)
         self.addChild(healthbar)
     }
-    func castleHealthRatioMonitor(){
-        
-    }
+
     
-    func dragonAttack(){
-        
-    }
-    
-    
-    func eggMoveRight(){
-        
-        //print(destinationPoint, "egg")
-        let moveEgg = SKAction.moveTo(destinationPoint, duration: dragonFlightSpeed)
-        dragonProjectileNode.runAction(moveEgg)
-    }
-    func eggMoveRightSecond(){
-        var myDoubleValue:Double = Double(dragonNode.position.x)
-        let moveEgg = SKAction.moveTo(destinationPoint, duration: dragonFlightSpeed/myDoubleValue)
-        dragonProjectileNode.runAction(moveEgg)
-    }
     func loadRandDropTime() -> NSTimeInterval{
     
     
@@ -562,18 +565,42 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
         
     }
+    
+    func getEnemyPosition(enemy: SKSpriteNode) -> CGPoint{
+        return enemy.position
+    }
+    
+    func loadRandDropXPoint(enemy: SKSpriteNode) -> CGFloat{
+        var MinSpawnValue = self.frame.size.width * 0.1
+        var MaxSpawnValue = self.frame.size.width * 0.9
+        var dropPoint = UInt32(MaxSpawnValue - MinSpawnValue)
+        
+        return CGFloat(CGFloat(arc4random_uniform(dropPoint)) + MinSpawnValue)
+    }
 
     func loadRandSpawnLeft() -> CGPoint{
-        var MinSpawnValue = self.frame.size.height * 0.325
+        var MinSpawnValue = self.frame.size.height * 0.45
         var MaxSpawnValue = self.frame.size.height * 0.8
         var SpawnPosition = UInt32(MaxSpawnValue - MinSpawnValue)
         return CGPointMake(self.frame.size.width * 0.0075, CGFloat(arc4random_uniform(SpawnPosition)) + MinSpawnValue)
     }
     func loadRandDestinationRight() -> CGPoint{
-        var MinSpawnValue = self.frame.size.height * 0.365
-        var MaxSpawnValue = self.frame.size.height * 0.8
+        var MinSpawnValue = self.frame.size.height * 0.45
+        var MaxSpawnValue = self.frame.size.height * 0.85
         var SpawnPosition = UInt32(MaxSpawnValue - MinSpawnValue)
         return CGPointMake(self.frame.size.width, CGFloat(arc4random_uniform(SpawnPosition)) + MinSpawnValue)
+    }
+    
+    func saveHighscore(){
+        userDefaults = NSUserDefaults.standardUserDefaults()
+        let highscore = userDefaults.integerForKey("highscore")
+        
+        if (score > highscore){
+            userDefaults.setInteger(score, forKey: "highscore")
+            eggLabelScoreNode.text = String(score)
+        }
+        highScoreShow = userDefaults.integerForKey("highscore")
+        
     }
     
     func addPhysicsWorld() {
@@ -600,6 +627,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             
             collisionHappenedDragon_Frame = true
             
+            
             if firstBody.node?.name == "enemyDragon"{
                 firstBody.node?.removeFromParent()
             }
@@ -610,11 +638,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         }
         
         if firstBody.categoryBitMask == bulletCategory && secondBody.categoryBitMask == dragonCategory && collisionHappenedDragon_Bullet != true || firstBody.categoryBitMask == dragonCategory && secondBody.categoryBitMask == bulletCategory && collisionHappenedDragon_Bullet != true {
+
             
+            dragonDied = true
             
             if scopeNode.hidden == true {
-                
-                dragonDied = true
+
                 
                 collisionHappenedDragon_Bullet = true
                 scopeNode.removeFromParent()
@@ -626,8 +655,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
                 scoreLabel.text = String(score)
                 
                 
-                //dragonProjectileNode.rem
-                //dragonProjectileNode.removeFromParent()
+                //projectileNode.removeFromParent()
                 
                 //resetDragon()
                 if firstBody.node?.name == "enemyDragon"{
@@ -654,7 +682,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             
             collisionHappenedProjectile_Turret = true
             //dragonProjectileNode.removeFromParent()
-            healthbar.runAction(SKAction.resizeToWidth(self.frame.size.width * 0.15, height: healthbar.size.height, duration: 0.25))
+            
+            hitCount++
+            
+            if (hitCount == 1){
+                healthbar.runAction(SKAction.resizeToWidth(self.frame.size.width * 0.1775, height: healthbar.size.height, duration: 0.25))
+            }
+            if (hitCount == 2){
+                healthbar.runAction(SKAction.resizeToWidth(self.frame.size.width * 0.09, height: healthbar.size.height, duration: 0.25))
+                healthbar.color = UIColor.yellowColor()
+            }
+            if (hitCount == 3){
+                healthbar.runAction(SKAction.resizeToWidth(self.frame.size.width * 0.02, height: healthbar.size.height, duration: 0.25))
+                healthbar.color = UIColor.redColor()
+            }
+            if (hitCount == 4){
+                healthbar.runAction(SKAction.resizeToWidth(0, height: healthbar.size.height, duration: 0.25))
+                myTimer.invalidate()
+                projectileNode.removeFromParent()
+                saveHighscore()
+
+            }
+
             
             if firstBody.node?.name == "enemyProjectile"{
                 firstBody.node?.removeFromParent()
@@ -683,6 +732,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         touching = false
         
         for touch: AnyObject! in touches {
+            print(dragonDied)
             let positionInScene = touch.locationInNode(self)
             let touchedNode = self.nodeAtPoint(positionInScene)
             
@@ -746,7 +796,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
         if touching == true{
-            let shootAction = SKAction.moveTo(CGPointMake(1900 * -cos(bulletNode.zRotation - 1.57079633) + bulletNode.position.x,1900 * -sin(bulletNode.zRotation - 1.57079633) + bulletNode.position.y),duration: 0.74)
+            let shootAction = SKAction.moveTo(CGPointMake(1900 * -cos(bulletNode.zRotation - 1.57079633) + bulletNode.position.x,1900 * -sin(bulletNode.zRotation - 1.57079633) + bulletNode.position.y),duration: 1)
             view?.userInteractionEnabled = false
             scopeNode.removeAllActions()
             bulletNode.runAction(shootAction)

@@ -10,24 +10,39 @@ import Foundation
 import SpriteKit
 
 class StartScene: SKScene {
-
+    
     override func didMoveToView(view: SKView) {
         
         
         //backgroundColor = SKColor.init(red: 113.0/255.0, green: 113.0/255.0, blue: 198.0/255.0, alpha: 1.0)
         
-        backgroundColor = SKColor.whiteColor()
-        let dragonImageMifsud = SKSpriteNode.init(imageNamed: "mifsudDragon")
-        dragonImageMifsud.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 1.5)
+        let backgroundImageNode = SKSpriteNode(imageNamed: "graph_paper_background")
+        backgroundImageNode.size = CGSizeMake(self.frame.size.width, self.frame.size.height)
+        backgroundImageNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2)
+        backgroundImageNode.name = "background"
+        backgroundImageNode.zPosition = 0
+        self.addChild(backgroundImageNode)
         
+        let dragonImageMifsud = SKSpriteNode.init(imageNamed: "mifsudDragon")
+        dragonImageMifsud.zPosition = 1
+        dragonImageMifsud.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height * 0.7)
         self.addChild(dragonImageMifsud)
         
+        let instructionNode = SKSpriteNode(imageNamed: "game_instruction")
+        instructionNode.position = CGPointMake(self.frame.size.width * 0.4, self.frame.size.height * 0.4)
+        instructionNode.zPosition = 1
+        instructionNode.name = "instructionNode"
+        instructionNode.xScale = 0.9
+        self.addChild(instructionNode)
         
-        let startNode = SKSpriteNode(imageNamed: "gameStart")
-        startNode.position = CGPointMake(self.frame.size.width / 2, self.frame.size.height * 0.25)
+        let startNode = SKSpriteNode(imageNamed: "game_new")
+        startNode.position = CGPointMake(self.frame.size.width * 0.375, self.frame.size.height * 0.275)
+        startNode.zPosition = 1
         startNode.name = "startNode"
         startNode.xScale = 0.9
         self.addChild(startNode)
+        
+
     
 }
     
